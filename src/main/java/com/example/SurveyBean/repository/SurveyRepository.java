@@ -1,0 +1,7 @@
+package com.example.SurveyBean.repository;
+
+import com.example.SurveyBean.domain.Survey;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface SurveyRepository extends JpaRepository<Survey, Long> {
+}
