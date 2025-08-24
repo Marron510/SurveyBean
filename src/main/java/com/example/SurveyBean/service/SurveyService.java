@@ -7,6 +7,7 @@ import com.example.SurveyBean.dto.response.SurveyResponse;
 import com.example.SurveyBean.dto.response.SurveyResultResponse;
 import com.example.SurveyBean.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate; // Added import
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class SurveyService {
 
 
     @Transactional
-    public void createSurvey(SurveyCreateRequest request, String username) { // 컨트롤러에서 사용자 이름이 전달된다고 가정.
+    public void createSurvey(SurveyCreateRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -50,9 +51,11 @@ public class SurveyService {
                     Choice choice = Choice.builder()
                             .text(cDto.getText())
                             .build();
+                    // Use the helper method to establish the bidirectional relationship
                     question.addChoice(choice);
                 });
             }
+            // Use the helper method to establish the bidirectional relationship
             survey.addQuestion(question);
         });
 
@@ -65,9 +68,12 @@ public class SurveyService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public SurveyResponse getSurveyById(Long surveyId) {
-        Survey survey = surveyRepository.findById(surveyId)
+        Survey survey = surveyRepository.findByIdWithQuestions(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found with id: " + surveyId));
+        // Explicitly initialize choices for each question
+        survey.getQuestions().forEach(question -> Hibernate.initialize(question.getChoices())); // Explicitly initialize choices
         return SurveyResponse.from(survey);
     }
 
@@ -85,7 +91,7 @@ public class SurveyService {
             }
 
             Choice choice = null;
-            if (question.getType() == QuestionType.MULTIPLE_CHOICE) {
+            if (question.getType() == QuestionType.MULTIPLE_CHOICE || question.getType() == QuestionType.SINGLE_CHOICE) {
                 if (answerDto.getChoiceId() == null) {
                     throw new IllegalArgumentException("Choice ID is required for multiple choice questions.");
                 }

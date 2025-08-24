@@ -3,6 +3,7 @@ package com.example.SurveyBean.controller;
 import com.example.SurveyBean.dto.auth.LoginRequest;
 import com.example.SurveyBean.dto.auth.SignupRequest;
 import com.example.SurveyBean.dto.response.SurveyResponse;
+import com.example.SurveyBean.dto.response.SurveyResultResponse;
 import com.example.SurveyBean.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -47,5 +48,12 @@ public class ViewController {
     @GetMapping("/create-survey")
     public String showCreateSurveyForm() {
         return "create-survey";
+    }
+
+    @GetMapping("/surveys/{id}/results")
+    public String showSurveyResults(@PathVariable Long id, Model model) {
+        SurveyResultResponse results = surveyService.getSurveyResults(id);
+        model.addAttribute("results", results);
+        return "survey-results";
     }
 }

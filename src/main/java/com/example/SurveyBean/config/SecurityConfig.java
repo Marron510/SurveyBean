@@ -32,15 +32,27 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
+                .authorizeHttpRequests(authz -> authz
+                        // Permit all requests to the UI pages and auth API
+                        .requestMatchers("/", "/login", "/signup", "/create-survey", "/surveys/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        // Survey API endpoints require USER role
+                        .requestMatchers("/api/surveys/**").hasRole("USER")
+                        // All other requests must be authenticated
+                        .anyRequest().authenticated()
+                )
+                // Add the JWT filter before the standard username/password filter
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll());
 
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

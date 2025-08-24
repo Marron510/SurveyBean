@@ -41,7 +41,7 @@ public class SurveyResultResponse {
 
         public static QuestionResultDto from(Question question, List<String> subjectiveAnswers, Map<Long, Long> choiceCounts) {
             List<ChoiceResultDto> choiceResults = null;
-            if (question.getType() == QuestionType.MULTIPLE_CHOICE) {
+            if (question.getType() == QuestionType.MULTIPLE_CHOICE || question.getType() == QuestionType.SINGLE_CHOICE) {
                 choiceResults = question.getChoices().stream()
                         .map(choice -> ChoiceResultDto.from(choice, choiceCounts.getOrDefault(choice.getId(), 0L)))
                         .toList();

@@ -7,12 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "users") // 'user'는 일부 데이터베이스에서 예약어.
+@Table(name = "users")
 public class User {
 
     @Id
@@ -29,6 +30,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    private String roles; // e.g., "ROLE_USER,ROLE_ADMIN"
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Survey> surveys = new ArrayList<>();
 
@@ -36,9 +39,18 @@ public class User {
     private List<Answer> answers = new ArrayList<>();
 
     @Builder
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, String roles) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.roles = roles;
+    }
+
+    // Helper method to get roles as a list
+    public List<String> getRoleList() {
+        if (this.roles != null && this.roles.length() > 0) {
+            return Arrays.asList(this.roles.split(","));
+        }
+        return new ArrayList<>();
     }
 }
