@@ -40,9 +40,14 @@ public class ViewController {
 
     @GetMapping("/surveys/{id}")
     public String showSurveyDetail(@PathVariable Long id, Model model) {
-        SurveyResponse survey = surveyService.getSurveyById(id);
-        model.addAttribute("survey", survey);
-        return "survey-detail";
+        try {
+            SurveyResponse survey = surveyService.getSurveyById(id);
+            model.addAttribute("survey", survey);
+            return "survey-detail";
+        } catch (IllegalArgumentException e) {
+            // 서비스에서 설문을 찾지 못해 예외가 발생한 경우 사용자 정의 404 에러 페이지로 이동
+            return "error/404"; // 예: /resources/templates/error/404.html
+        }
     }
 
     @GetMapping("/create-survey")

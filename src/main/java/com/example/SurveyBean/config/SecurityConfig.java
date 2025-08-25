@@ -37,16 +37,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Permit all requests to the UI pages and auth API
+                        // UI 페이지 및 인증 API에 대한 모든 요청 허용
                         .requestMatchers("/", "/login", "/signup", "/create-survey", "/surveys/**").permitAll()
                         .requestMatchers("/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Survey API endpoints require USER role
+                        // 설문조사 API 엔드포인트는 USER 역할 필요
                         .requestMatchers("/api/surveys/**").hasRole("USER")
-                        // All other requests must be authenticated
+                        // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
-                // Add the JWT filter before the standard username/password filter
+                // 표준 Username/Password 필터 앞에 JWT 필터 추가
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/logout")

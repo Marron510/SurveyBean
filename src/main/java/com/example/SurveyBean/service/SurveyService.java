@@ -7,7 +7,7 @@ import com.example.SurveyBean.dto.response.SurveyResponse;
 import com.example.SurveyBean.dto.response.SurveyResultResponse;
 import com.example.SurveyBean.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate; // Added import
+import org.hibernate.Hibernate; // import 추가
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,11 +51,11 @@ public class SurveyService {
                     Choice choice = Choice.builder()
                             .text(cDto.getText())
                             .build();
-                    // Use the helper method to establish the bidirectional relationship
+                    // 양방향 관계 설정을 위해 헬퍼 메서드 사용
                     question.addChoice(choice);
                 });
             }
-            // Use the helper method to establish the bidirectional relationship
+            // 양방향 관계 설정을 위해 헬퍼 메서드 사용
             survey.addQuestion(question);
         });
 
@@ -72,8 +72,8 @@ public class SurveyService {
     public SurveyResponse getSurveyById(Long surveyId) {
         Survey survey = surveyRepository.findByIdWithQuestions(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found with id: " + surveyId));
-        // Explicitly initialize choices for each question
-        survey.getQuestions().forEach(question -> Hibernate.initialize(question.getChoices())); // Explicitly initialize choices
+        // 각 질문에 대한 선택지를 명시적으로 초기화
+        survey.getQuestions().forEach(question -> Hibernate.initialize(question.getChoices())); // 선택지 명시적 초기화
         return SurveyResponse.from(survey);
     }
 

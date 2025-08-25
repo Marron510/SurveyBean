@@ -13,7 +13,6 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Use @Lazy on PasswordEncoder to break circular dependency with SecurityConfig
     public DataLoader(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -21,7 +20,6 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Check if a default user already exists
         if (userRepository.findByUsername("user").isEmpty()) {
             User user = User.builder()
                     .username("user")

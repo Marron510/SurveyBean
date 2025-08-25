@@ -2,8 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Survey</title>
-    <link rel="stylesheet" th:href="@{/css/survey-detail.css}">
+    <title>Survey Results</title>
+    <link rel="stylesheet" th:href="@{/css/survey-results.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
@@ -12,55 +12,53 @@
 
 <header class="header">
     <a th:href="@{/}" class="logo">SurveyBean</a>
-    <nav class="nav">
-        <a th:href="@{/logout}">로그아웃</a>
-    </nav>
 </header>
 
-<div class="survey-container">
-    <div class="survey-header">
-        <h1 th:text="${survey.title}">Survey Title</h1>
-        <p th:text="${survey.description}">Survey Description</p>
+<div class="results-container">
+    <div class="results-header">
+        <h1 th:text="${results.title}">Survey Title - Results</h1>
     </div>
 
     <hr>
 
-    <form id="surveyForm">
-        <div th:each="question, iterStat : ${survey.questions}" class="question-block" th:attr="data-question-id=${question.questionId}, data-question-type=${question.type}">
-            <h5 th:text="${(iterStat.index + 1) + '. ' + question.text}">Question Text</h5>
-            <p>Question Type: <span th:text="${question.type}"></span></p>
+    <div th:each="question, iterStat : ${results.questions}" class="result-block">
+        <h5 th:text="${(iterStat.index + 1) + '. ' + question.text}">Question Text</h5>
 
-            <div th:switch="${question.type}">
-                <!-- Single Choice Question -->
-                <div th:case="'SINGLE_CHOICE'">
-                    <div th:each="choice : ${question.choices}" class="choice-item">
-                        <input type="radio" th:name="'question-' + ${question.questionId}" th:value="${choice.choiceId}" required>
-                        <label th:text="${choice.text}">Choice Text</label>
+        <div th:switch="${question.type}">
+            <div th:case="${T(com.example.SurveyBean.domain.QuestionType).SINGLE_CHOICE}">
+                <div th:each="choice : ${question.choices}" class="choice-result">
+                    <span class="choice-text" th:text="${choice.text} + ' (' + ${choice.count} + '표)'">Choice Text (Count)</span>
+                    <div class="result-bar-container">
+                        <div class="result-bar" th:style="'width: ' + (${question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0}) + '%;'"
+                             th:text="${#numbers.formatDecimal((question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0), 1, 1)} + '%'">
+                        </div>
                     </div>
-                </div>
-
-                <!-- Multiple Choice Question -->
-                <div th:case="'MULTIPLE_CHOICE'">
-                    <div th:each="choice : ${question.choices}" class="choice-item">
-                        <input type="checkbox" th:name="'question-' + ${question.questionId}" th:value="${choice.choiceId}">
-                        <label th:text="${choice.text}">Choice Text</label>
-                    </div>
-                </div>
-
-                <!-- Text Question -->
-                <div th:case="'TEXT'">
-                    <textarea class="form-control" th:name="'question-' + ${question.questionId}" rows="4" placeholder="답변을 입력하세요..."></textarea>
                 </div>
             </div>
-        </div>
+            <div th:case="${T(com.example.SurveyBean.domain.QuestionType).MULTIPLE_CHOICE}">
+                <div th:each="choice : ${question.choices}" class="choice-result">
+                    <span class="choice-text" th:text="${choice.text} + ' (' + ${choice.count} + '표)'">Choice Text (Count)</span>
+                    <div class="result-bar-container">
+                        <div class="result-bar" th:style="'width: ' + (${question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0}) + '%;'"
+                             th:text="${#numbers.formatDecimal((question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0), 1, 1)} + '%'">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="submit-btn-container">
-            <button type="submit" class="btn">답변 제출</button>
+            <div th:case="${T(com.example.SurveyBean.domain.QuestionType).TEXT}">
+                <ul class="subjective-answers-list">
+                    <li th:each="answer : ${question.subjectiveAnswers}" class="subjective-answer" th:text="${answer}">
+                        Subjective answer text.
+                    </li>
+                    <li th:if="${question.subjectiveAnswers == null or question.subjectiveAnswers.isEmpty()}">
+                        <p>주관식 답변이 없습니다.</p>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </form>
-    <div id="message" style="margin-top: 20px; text-align: center;"></div>
+    </div>
 </div>
 
-<script th:src="@{/js/survey-detail.js}"></script>
 </body>
 </html>

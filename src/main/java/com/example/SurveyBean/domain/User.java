@@ -30,7 +30,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String roles; // e.g., "ROLE_USER,ROLE_ADMIN"
+    private String roles; // 예: "ROLE_USER,ROLE_ADMIN"
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Survey> surveys = new ArrayList<>();
@@ -46,7 +46,7 @@ public class User {
         this.roles = roles;
     }
 
-    // Helper method to get roles as a list
+    // 역할을 리스트로 반환하는 헬퍼 메서드
     public List<String> getRoleList() {
         if (this.roles != null && this.roles.length() > 0) {
             return Arrays.asList(this.roles.split(","));

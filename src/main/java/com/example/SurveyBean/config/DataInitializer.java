@@ -19,6 +19,7 @@ public class DataInitializer implements CommandLineRunner {
                     .username("testuser")
                     .email("test@example.com")
                     .password("password") // 실제 앱에서는 인코딩되어야 함.
+                    .roles("ROLE_ADMIN")
                     .build();
             userRepository.save(testUser);
         }
