@@ -8,6 +8,8 @@ import com.example.SurveyBean.dto.response.SurveyResultResponse;
 import com.example.SurveyBean.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate; // import 추가
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,10 @@ public class SurveyService {
 
     @Transactional
     public void createSurvey(SurveyCreateRequest request, String username) {
+        if (request.getQuestions() == null || request.getQuestions().isEmpty()) {
+            throw new IllegalArgumentException("질문을 생성해주십시오");
+        }
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -64,6 +70,19 @@ public class SurveyService {
 
     public List<SurveyResponse> getSurveys() {
         return surveyRepository.findAll().stream()
+                .map(SurveyResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<SurveyResponse> getTop3Surveys() {
+        Pageable top3 = PageRequest.of(0, 3);
+        return surveyRepository.findTop3ByOrderByAnswersDesc(top3).stream()
+                .map(SurveyResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<SurveyResponse> getSurveysByUsername(String username) {
+        return surveyRepository.findByUser_Username(username).stream()
                 .map(SurveyResponse::from)
                 .collect(Collectors.toList());
     }
@@ -140,5 +159,17 @@ public class SurveyService {
         }
 
         return SurveyResultResponse.from(survey, subjectiveAnswers, choiceCounts);
+    }
+
+    @Transactional
+    public void deleteSurvey(Long surveyId, String username) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new IllegalArgumentException("Survey not found with id: " + surveyId));
+
+        if (!survey.getUser().getUsername().equals(username)) {
+            throw new IllegalStateException("You are not authorized to delete this survey.");
+        }
+
+        surveyRepository.delete(survey);
     }
 }

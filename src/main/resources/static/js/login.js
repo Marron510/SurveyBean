@@ -20,14 +20,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (response.ok) {
                     return response.json();
                 } else {
-                    // Try to get a meaningful error message from the server
                     return response.json().then(errorData => {
                         throw new Error(errorData.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
                     });
                 }
             })
             .then(responseData => {
-                // Save the token and redirect
+                // 토큰 저장 후 리다이렉트
                 localStorage.setItem('jwt', responseData.token);
                 window.location.href = '/';
             })

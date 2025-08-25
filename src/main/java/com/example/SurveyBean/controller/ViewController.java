@@ -4,6 +4,8 @@ import com.example.SurveyBean.dto.auth.LoginRequest;
 import com.example.SurveyBean.dto.auth.SignupRequest;
 import com.example.SurveyBean.dto.response.SurveyResponse;
 import com.example.SurveyBean.dto.response.SurveyResultResponse;
+import com.example.SurveyBean.dto.response.UserInfoResponse;
+import com.example.SurveyBean.service.AuthService;
 import com.example.SurveyBean.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -11,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -18,11 +21,14 @@ import java.util.List;
 public class ViewController {
 
     private final SurveyService surveyService;
+    private final AuthService authService;
 
     @GetMapping("/")
     public String index(Model model) {
         List<SurveyResponse> surveys = surveyService.getSurveys();
         model.addAttribute("surveys", surveys);
+        List<SurveyResponse> top3Surveys = surveyService.getTop3Surveys();
+        model.addAttribute("top3Surveys", top3Surveys);
         return "index"; // 이는 /resources/templates/index.html을 참조.
     }
 
@@ -60,5 +66,15 @@ public class ViewController {
         SurveyResultResponse results = surveyService.getSurveyResults(id);
         model.addAttribute("results", results);
         return "survey-results";
+    }
+
+    @GetMapping("/mypage")
+    public String mypage(Model model, Principal principal) {
+        String username = principal.getName();
+        UserInfoResponse userInfo = authService.getUserInfo(username);
+        model.addAttribute("userInfo", userInfo);
+        List<SurveyResponse> mySurveys = surveyService.getSurveysByUsername(username);
+        model.addAttribute("mySurveys", mySurveys);
+        return "mypage";
     }
 }

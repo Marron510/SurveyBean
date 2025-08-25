@@ -50,4 +50,11 @@ public class SurveyController {
         SurveyResultResponse results = surveyService.getSurveyResults(id);
         return ResponseEntity.ok(results);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSurvey(@PathVariable Long id, Principal principal) {
+        String username = principal.getName();
+        surveyService.deleteSurvey(id, username);
+        return ResponseEntity.noContent().build();
+    }
 }

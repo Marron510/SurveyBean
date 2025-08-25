@@ -37,13 +37,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // UI 페이지 및 인증 API에 대한 모든 요청 허용
-                        .requestMatchers("/", "/login", "/signup", "/create-survey", "/surveys/**").permitAll()
-                        .requestMatchers("/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // 설문조사 API 엔드포인트는 USER 역할 필요
+                        .requestMatchers("/css/**", "/js/**", "/api/auth/**", "/", "/login", "/signup", "/create-survey").permitAll()
                         .requestMatchers("/api/surveys/**").hasRole("USER")
-                        // 그 외 모든 요청은 인증 필요
+                        .requestMatchers("/surveys/{id}/results").permitAll()
+                        .requestMatchers("/surveys/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // 표준 Username/Password 필터 앞에 JWT 필터 추가

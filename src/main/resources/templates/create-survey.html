@@ -184,17 +184,8 @@
                 window.location.href = '/';
             }, 2000);
         } else {
-            // --- TEMPORARY DEBUGGING CODE START ---
-            const rawResponseText = await response.text(); // Get raw text
-            console.error('Raw Server Response:', rawResponseText);
-            try {
-                const errorData = JSON.parse(rawResponseText); // Try parsing
-                throw new Error(errorData.message || '설문조사 생성에 실패했습니다.');
-            } catch (jsonParseError) {
-                // If parsing fails, use the raw text as the error message
-                throw new Error('서버 응답을 파싱할 수 없습니다: ' + rawResponseText.substring(0, 200) + '...'); // Truncate for display
-            }
-            // --- TEMPORARY DEBUGGING CODE END ---
+            const errorData = await response.json();
+            throw new Error(errorData.message || '설문조사 생성에 실패했습니다.');
         }
     } catch (error) {
         messageDiv.innerHTML = '<div style="color: red;">' + error.message + '</div>';

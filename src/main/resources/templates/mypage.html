@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Page</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="header">
+        <a th:href="@{/}" class="logo">SurveyBean</a>
+        <nav class="nav">
+            <a th:href="@{/mypage}">My Page</a>
+            <a th:href="@{/logout}">로그아웃</a>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="user-info-container">
+            <h2>My Info</h2>
+            <p>Username: <span th:text="${userInfo.username}"></span></p>
+            <p>Email: <span th:text="${userInfo.email}"></span></p>
+        </div>
+
+        <hr>
+
+        <div class="my-surveys-container">
+            <h2>My Surveys</h2>
+            <div class="survey-list-container">
+                <div th:if="${mySurveys.isEmpty()}">
+                    <p>You have not created any surveys yet.</p>
+                </div>
+                <div th:each="survey : ${mySurveys}" class="survey-card" th:attr="data-survey-id=${survey.surveyId}">
+                    <div>
+                        <h3 th:text="${survey.title}">Survey Title</h3>
+                        <p th:text="${survey.description}">Survey Description</p>
+                    </div>
+                    <button class="btn btn-danger delete-survey-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 SurveyBean. All rights reserved.</p>
+    </footer>
+    <script th:src="@{/js/mypage.js}"></script>
+</body>
+</html>

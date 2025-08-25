@@ -26,30 +26,30 @@
 
         <div th:switch="${question.type}">
             <!-- Objective Choice Results -->
-            <div th:case="'SINGLE_CHOICE'">
+            <div th:case="${T(com.example.SurveyBean.domain.QuestionType).SINGLE_CHOICE}">
                 <div th:each="choice : ${question.choices}" class="choice-result">
                     <span class="choice-text" th:text="${choice.text} + ' (' + ${choice.count} + '표)'">Choice Text (Count)</span>
                     <div class="result-bar-container">
                         <!-- Calculate percentage, handle division by zero -->
-                        <div class="result-bar" th:style="'width: ' + (${question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0}) + '%;'"
-                             th:text="${#numbers.formatDecimal((question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0), 1, 1)} + '%'">
+                        <div class="result-bar" th:with="totalVotes=${#aggregates.sum(question.choices.![count])}" th:style="'width: ' + (${totalVotes > 0 ? (choice.count * 100.0 / totalVotes) : 0}) + '%;'"
+                             th:text="${#numbers.formatDecimal((totalVotes > 0 ? (choice.count * 100.0 / totalVotes) : 0), 1, 1)} + '%'">
                         </div>
                     </div>
                 </div>
             </div>
-            <div th:case="'MULTIPLE_CHOICE'">
+            <div th:case="${T(com.example.SurveyBean.domain.QuestionType).MULTIPLE_CHOICE}">
                  <div th:each="choice : ${question.choices}" class="choice-result">
                     <span class="choice-text" th:text="${choice.text} + ' (' + ${choice.count} + '표)'">Choice Text (Count)</span>
                     <div class="result-bar-container">
-                        <div class="result-bar" th:style="'width: ' + (${question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0}) + '%;'"
-                             th:text="${#numbers.formatDecimal((question.choices.![count].sum() > 0 ? (choice.count * 100.0 / question.choices.![count].sum()) : 0), 1, 1)} + '%'">
+                        <div class="result-bar" th:with="totalVotes=${#aggregates.sum(question.choices.![count])}" th:style="'width: ' + (${totalVotes > 0 ? (choice.count * 100.0 / totalVotes) : 0}) + '%;'"
+                             th:text="${#numbers.formatDecimal((totalVotes > 0 ? (choice.count * 100.0 / totalVotes) : 0), 1, 1)} + '%'">
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Subjective Text Results -->
-            <div th:case="'TEXT'">
+            <div th:case="${T(com.example.SurveyBean.domain.QuestionType).TEXT}">
                 <ul class="subjective-answers-list">
                     <li th:each="answer : ${question.subjectiveAnswers}" class="subjective-answer" th:text="${answer}">
                         Subjective answer text.

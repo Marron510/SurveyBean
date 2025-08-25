@@ -17,6 +17,17 @@
     </header>
 
     <main class="main-container">
+        <div class="top-surveys-container">
+            <h2>인기 설문 Top 3</h2>
+            <div class="survey-list-container">
+                <a th:each="survey : ${top3Surveys}" th:href="@{/surveys/{id}(id=${survey.surveyId})}" class="survey-card">
+                    <h3 th:text="${survey.title}">Survey Title</h3>
+                    <p th:text="${survey.description}">Survey Description</p>
+                </a>
+            </div>
+        </div>
+        <hr>
+
         <div class="survey-list-header">
             <h2>진행중인 설문조사</h2>
             <a th:href="@{/create-survey}" class="btn btn-primary">새 설문조사 만들기</a>
@@ -30,8 +41,10 @@
 
             <!-- Loop through surveys -->
             <a th:each="survey : ${surveys}" th:href="@{/surveys/{id}(id=${survey.surveyId})}" class="survey-card">
-                <h3 th:text="${survey.title}">Survey Title</h3>
-                <p th:text="${survey.description}">Survey Description</p>
+                <div>
+                    <h3 th:text="${survey.title}">Survey Title</h3>
+                    <p th:text="${survey.description}">Survey Description</p>
+                </div>
             </a>
         </div>
     </main>

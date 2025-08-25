@@ -4,6 +4,7 @@ import com.example.SurveyBean.domain.User;
 import com.example.SurveyBean.dto.auth.JwtResponse;
 import com.example.SurveyBean.dto.auth.LoginRequest;
 import com.example.SurveyBean.dto.auth.SignupRequest;
+import com.example.SurveyBean.dto.response.UserInfoResponse;
 import com.example.SurveyBean.jwt.JwtUtils;
 import com.example.SurveyBean.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,11 @@ public class AuthService {
         String jwt = jwtUtils.generateToken(userDetails);
 
         return new JwtResponse(jwt);
+    }
+
+    public UserInfoResponse getUserInfo(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return UserInfoResponse.from(user);
     }
 }
