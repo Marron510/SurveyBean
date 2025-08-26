@@ -28,7 +28,7 @@ public class DataLoader implements CommandLineRunner {
                     .roles("ROLE_USER") // Add this line
                     .build();
             userRepository.save(user);
-            System.out.println("Default user created with ROLE_USER!");
+            System.out.println("기본 사용자가 'ROLE_USER' 권한으로 생성되었습니다.");
         }
     }
 }

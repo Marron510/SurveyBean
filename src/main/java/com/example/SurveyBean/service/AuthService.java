@@ -29,11 +29,11 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest signupRequest) {
         if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
-            throw new IllegalStateException("Username is already taken!");
+            throw new IllegalStateException("이미 사용 중인 아이디입니다.");
         }
 
         if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
-            throw new IllegalStateException("Email is already in use!");
+            throw new IllegalStateException("이미 사용 중인 이메일입니다.");
         }
 
         User user = User.builder()
@@ -58,7 +58,7 @@ public class AuthService {
 
     public UserInfoResponse getUserInfo(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 사용자 입니다."));
         return UserInfoResponse.from(user);
     }
 }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const jwtToken = localStorage.getItem('jwt');
 
             if (!jwtToken) {
-                alert('You must be logged in to delete a survey.');
+                alert('설문지를 삭제하려면 로그인이 필요합니다.');
                 return;
             }
 
@@ -28,11 +28,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         surveyCard.remove();
                     } else {
                         const errorData = await response.json();
-                        alert(errorData.message || 'Failed to delete the survey.');
+                        alert(errorData.message ||  '설문지 삭제에 실패했습니다.');
                     }
                 } catch (error) {
                     console.error('Delete Error:', error);
-                    alert('An error occurred while deleting the survey.');
+                    alert('설문지를 삭제하는 중 오류가 발생했습니다.');
                 }
             }
         });

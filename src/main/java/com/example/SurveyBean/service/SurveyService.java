@@ -7,7 +7,7 @@ import com.example.SurveyBean.dto.response.SurveyResponse;
 import com.example.SurveyBean.dto.response.SurveyResultResponse;
 import com.example.SurveyBean.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate; // import 추가
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class SurveyService {
         }
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다.")); // 변경
 
         Survey survey = Survey.builder()
                 .user(user)
@@ -57,11 +57,9 @@ public class SurveyService {
                     Choice choice = Choice.builder()
                             .text(cDto.getText())
                             .build();
-                    // 양방향 관계 설정을 위해 헬퍼 메서드 사용
                     question.addChoice(choice);
                 });
             }
-            // 양방향 관계 설정을 위해 헬퍼 메서드 사용
             survey.addQuestion(question);
         });
 
@@ -90,34 +88,33 @@ public class SurveyService {
     @Transactional(readOnly = true)
     public SurveyResponse getSurveyById(Long surveyId) {
         Survey survey = surveyRepository.findByIdWithQuestions(surveyId)
-                .orElseThrow(() -> new IllegalArgumentException("Survey not found with id: " + surveyId));
-        // 각 질문에 대한 선택지를 명시적으로 초기화
-        survey.getQuestions().forEach(question -> Hibernate.initialize(question.getChoices())); // 선택지 명시적 초기화
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 설문지를 찾을 수 없습니다: " + surveyId)); // 변경
+        survey.getQuestions().forEach(question -> Hibernate.initialize(question.getChoices()));
         return SurveyResponse.from(survey);
     }
 
     @Transactional
     public void submitAnswers(Long surveyId, AnswerSubmitRequest request, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다.")); // 변경
 
         request.getAnswers().forEach(answerDto -> {
             Question question = questionRepository.findById(answerDto.getQuestionId())
-                    .orElseThrow(() -> new IllegalArgumentException("Question not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 질문입니다.")); // 변경
 
             if (!question.getSurvey().getId().equals(surveyId)) {
-                throw new IllegalStateException("Question does not belong to the specified survey.");
+                throw new IllegalStateException("해당 질문은 지정된 설문지에 속해있지 않습니다."); // 변경
             }
 
             Choice choice = null;
             if (question.getType() == QuestionType.MULTIPLE_CHOICE || question.getType() == QuestionType.SINGLE_CHOICE) {
                 if (answerDto.getChoiceId() == null) {
-                    throw new IllegalArgumentException("Choice ID is required for multiple choice questions.");
+                    throw new IllegalArgumentException("선택형 질문에는 선택지 ID가 필수입니다."); // 변경
                 }
                 choice = choiceRepository.findById(answerDto.getChoiceId())
-                        .orElseThrow(() -> new IllegalArgumentException("Choice not found"));
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 선택지입니다.")); // 변경
                 if (!choice.getQuestion().getId().equals(question.getId())) {
-                    throw new IllegalStateException("Choice does not belong to the specified question.");
+                    throw new IllegalStateException("해당 선택지는 지정된 질문에 속해있지 않습니다."); // 변경
                 }
             }
 
@@ -134,7 +131,7 @@ public class SurveyService {
 
     public SurveyResultResponse getSurveyResults(Long surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new IllegalArgumentException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 설문지를 찾을 수 없습니다: " + surveyId)); // 변경
 
         List<Long> questionIds = survey.getQuestions().stream().map(Question::getId).toList();
         List<Answer> answers = answerRepository.findByQuestionIdIn(questionIds);
@@ -164,10 +161,10 @@ public class SurveyService {
     @Transactional
     public void deleteSurvey(Long surveyId, String username) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new IllegalArgumentException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 설문지를 찾을 수 없습니다: " + surveyId)); // 변경
 
         if (!survey.getUser().getUsername().equals(username)) {
-            throw new IllegalStateException("You are not authorized to delete this survey.");
+            throw new IllegalStateException("해당 설문지를 삭제할 권한이 없습니다."); // 변경
         }
 
         surveyRepository.delete(survey);
